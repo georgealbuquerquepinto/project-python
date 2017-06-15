@@ -3,8 +3,8 @@ from PyQt4.QtGui import *
 from PyQt4.QtWebKit import *
 import model
 
-latitude = -3.685266
-longitude = -40.3461367
+latitude = -13.024123
+longitude = -50.6792927
 
 maphtml = """
 <!DOCTYPE html>
@@ -12,9 +12,15 @@ maphtml = """
   <head>
     <style>
        #map {{
-        height: 400px;
-        width: 100%;
+        height: 100%;
+        width: 60%;
        }}
+       html, body {{
+        height: 100%;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+      }}
     </style>
   </head>
   <body>
@@ -23,7 +29,7 @@ maphtml = """
       function initMap() {{
         var uluru = {{lat: {lat}, lng: {lon}}};
         var map = new google.maps.Map(document.getElementById('map'), {{
-          zoom: 12,
+          zoom: 4,
           center: uluru
         }});
       }}
@@ -45,9 +51,11 @@ class View(QApplication):
         self.longitude.setPlaceholderText("Longitude")
         self.search = QPushButton("Buscar")
         self.search.clicked.connect(self.procurarUnidade)
+        self.searchAll = QPushButton("Buscar todos")
+        self.searchAll.clicked.connect(self.procurarUnidades)
 
         self.web = QWebView(self.window)
-        self.web.setMinimumSize(400,400)
+        self.web.setMinimumSize(1200,500)
         self.web.page().mainFrame().addToJavaScriptWindowObject('self', self)
         self.web.setHtml(maphtml)
 
@@ -58,6 +66,7 @@ class View(QApplication):
         self.layout.addWidget(self.latitude)
         self.layout.addWidget(self.longitude)
         self.layout.addWidget(self.search)
+        self.layout.addWidget(self.searchAll)
         self.layout.addWidget(self.web)
 
         self.window.show()
@@ -77,10 +86,12 @@ class View(QApplication):
                      * element that contains the map. */
                     #map {{
                       height: 100%;
+                      width: 60%;
                     }}
                     /* Optional: Makes the sample page fill the window. */
                     html, body {{
                       height: 100%;
+                      width: 100%;
                       margin: 0;
                       padding: 0;
                     }}
@@ -130,6 +141,43 @@ class View(QApplication):
             print(unSaude.longitude)
             print(unSaude.latitude)
 
+    def showAll(self, unSaude):
+        if unSaude:
+            lista = ''
+            for unit in unSaude:
+                lista += unit.nome + '<br/>'
+            maphtml = """
+              <!DOCTYPE html>
+              <html>
+                <head>
+                  <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+                  <meta charset="utf-8">
+                  <title>Info windows</title>
+                  <style>
+                    /* Always set the map height explicitly to define the size of the div
+                     * element that contains the map. */
+                    #text {{
+                      width: 100%;
+                      float:right;
+                    }}
+                    /* Optional: Makes the sample page fill the window. */
+                    html, body {{
+                      height: 100%;
+                      width: 100%;
+                      margin: 0;
+                      padding: 0;
+                    }}
+                  </style>
+                </head>
+                <body>
+                  <div id="text">
+                    <p>{lista}</p>
+                  </div>
+                </body>
+              </html>
+            """.format(lista=lista)
+            self.web.setHtml(maphtml)
+
     def procurarUnidade(self):
         longitude = self.getLongitude()
         latitude = self.getLatitude()
@@ -138,6 +186,11 @@ class View(QApplication):
         netdata = model.NetDataModel()
         unitHealth = netdata.searchNearUnitHealth(longitude, latitude)
         self.show(unitHealth)
+
+    def procurarUnidades(self):
+        netdata = model.NetDataModel()
+        unitHealth = netdata.searchAllUnitHealth()
+        self.showAll(unitHealth)
 
     def getLongitude(self):
         try:

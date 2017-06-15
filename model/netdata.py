@@ -104,6 +104,8 @@ class NetDataModel():
         self.repository = self.loadlistfromcsv(RESOURCE_URL, OUTPUT_PATH, EXTRACTED_PATH)
 
     def searchNearUnitHealth(self, longitude, latitude):
+        print(longitude)
+        print(latitude)
         self.syncdata()
         dados = self.repository
         #dados = self.read_data('/home/user/Documentos/lp3/pythoncourse/pythoncourse/src/ubs.csv')
