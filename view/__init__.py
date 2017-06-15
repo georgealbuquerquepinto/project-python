@@ -1,1 +1,1 @@
-from view.tkinter import View
+from view.pyqt import View
