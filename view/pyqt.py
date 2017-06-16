@@ -1,6 +1,7 @@
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from PyQt4.QtWebKit import *
+from dao import *
 import model
 
 latitude = -13.024123
@@ -39,6 +40,7 @@ maphtml = """
     </script>
   </body>
   </html>""".format(lat=latitude,lon=longitude)
+
 class View(QApplication):
     def __init__(self):
         QApplication.__init__(self, [])
@@ -186,6 +188,7 @@ class View(QApplication):
         netdata = model.NetDataModel()
         unitHealth = netdata.searchNearUnitHealth(longitude, latitude)
         self.show(unitHealth)
+        UnidadeDeSaudeDAO.insert(unitHealth)
 
     def procurarUnidades(self):
         netdata = model.NetDataModel()
@@ -209,4 +212,3 @@ class View(QApplication):
         if i == 0:
             self.text.clear()
         self.text.append("Point #{} ({}, {})".format(i, lat, lng))
-
