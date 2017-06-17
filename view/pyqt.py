@@ -51,9 +51,9 @@ class View(QApplication):
         self.latitude.setPlaceholderText("Latitude")
         self.longitude = QLineEdit()
         self.longitude.setPlaceholderText("Longitude")
-        self.search = QPushButton("Buscar")
+        self.search = QPushButton("Procurar")
         self.search.clicked.connect(self.procurarUnidade)
-        self.searchAll = QPushButton("Buscar todos")
+        self.searchAll = QPushButton("Gerar Relatório de Unidades mais Procuradas")
         self.searchAll.clicked.connect(self.procurarUnidades)
 
         self.web = QWebView(self.window)
@@ -143,42 +143,12 @@ class View(QApplication):
             print(unSaude.longitude)
             print(unSaude.latitude)
 
-    def showAll(self, unSaude):
-        if unSaude:
-            lista = ''
-            for unit in unSaude:
-                lista += unit.nome + '<br/>'
-            maphtml = """
-              <!DOCTYPE html>
-              <html>
-                <head>
-                  <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
-                  <meta charset="utf-8">
-                  <title>Info windows</title>
-                  <style>
-                    /* Always set the map height explicitly to define the size of the div
-                     * element that contains the map. */
-                    #text {{
-                      width: 100%;
-                      float:right;
-                    }}
-                    /* Optional: Makes the sample page fill the window. */
-                    html, body {{
-                      height: 100%;
-                      width: 100%;
-                      margin: 0;
-                      padding: 0;
-                    }}
-                  </style>
-                </head>
-                <body>
-                  <div id="text">
-                    <p>{lista}</p>
-                  </div>
-                </body>
-              </html>
-            """.format(lista=lista)
-            self.web.setHtml(maphtml)
+    def showAll(self, unidades):
+        lista = ''
+        for lin in unidades:
+            for col in lin:
+                lista += col + ','
+            lista += '<br/>'
 
     def procurarUnidade(self):
         longitude = self.getLongitude()
@@ -194,7 +164,9 @@ class View(QApplication):
         netdata = model.NetDataModel()
         unitHealth = netdata.searchAllUnitHealth()
         self.showAll(unitHealth)
-
+        units = UnidadeDeSaudeDAO.searchAll()
+        self.showAll(units)
+        
     def getLongitude(self):
         try:
             return float(self.longitude.text())
